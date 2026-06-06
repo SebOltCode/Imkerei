@@ -1,5 +1,6 @@
 import Reveal from './Reveal.jsx'
 import { partners } from '../data/partners.js'
+import { asset } from '../utils/asset.js'
 
 export default function Partners() {
   return (
@@ -26,7 +27,7 @@ export default function Partners() {
               >
                 <div className="partner-card__logo">
                   {p.logo ? (
-                    <img src={p.logo} alt={`Logo ${p.name}`} />
+                    <img src={asset(p.logo)} alt={`Logo ${p.name}`} />
                   ) : (
                     <span aria-hidden="true">{p.emoji}</span>
                   )}

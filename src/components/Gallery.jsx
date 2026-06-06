@@ -1,5 +1,6 @@
 import Reveal from './Reveal.jsx'
 import { galleryItems } from '../data/gallery.js'
+import { asset } from '../utils/asset.js'
 
 export default function Gallery() {
   return (
@@ -19,7 +20,7 @@ export default function Gallery() {
             <Reveal key={item.id} delay={i * 70}>
               <figure className="gallery__item">
                 {item.image ? (
-                  <img src={item.image} alt={item.alt} loading="lazy" />
+                  <img src={asset(item.image)} alt={item.alt} loading="lazy" />
                 ) : (
                   <div className="gallery__placeholder placeholder">
                     <span className="placeholder__icon" aria-hidden="true">{item.emoji}</span>
