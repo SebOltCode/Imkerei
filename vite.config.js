@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react'
 // Deshalb braucht der Produktions-Build diesen base-Pfad, damit JS, CSS
 // und Assets korrekt geladen werden. Lokal (dev) bleibt es bei "/".
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/Imkerei/' : '/',
+  base: '/',
   plugins: [react()],
   server: {
     open: true,
