@@ -24,21 +24,13 @@ export const products = [
     accent: 'moss',
   },
   {
-    id: 'linde',
+    id: 'fruehtracht',
     emoji: '🌳',
-    name: 'Lindenblütenhonig',
+    name: 'Frühtrachthonig',
     tagline: 'Aromatisch & frisch',
     description:
-      'Würzig-frisch mit einer feinen Minznote. Aus den alten Lindenalleen unserer Region – ein echtes Sommererlebnis.',
+      'Das erste Gold des Jahres – gesammelt aus Obstblüten, Löwenzahn und Weidenkätzchen. Hell, fein-fruchtig und mild im Geschmack.',
     accent: 'honey-deep',
   },
-  {
-    id: 'wabenhonig',
-    emoji: '🍯',
-    name: 'Honig in der Wabe',
-    tagline: 'Pur, wie die Bienen ihn machen',
-    description:
-      'Naturbelassen direkt aus der Wabe geschnitten. Ursprünglicher geht es nicht – ein Stück echtes Imkerhandwerk.',
-    accent: 'amber',
-  },
+
 ]

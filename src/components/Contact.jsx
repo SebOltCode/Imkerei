@@ -42,7 +42,7 @@ export default function Contact() {
               <span aria-hidden="true">📞</span>
               <div>
                 <strong>Telefon</strong>
-                <p>0123 / 456 789{/* Platzhalter */}</p>
+                <p>0151 54759546</p>
               </div>
             </li>
           </ul>

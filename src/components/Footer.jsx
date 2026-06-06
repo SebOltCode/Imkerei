@@ -21,8 +21,8 @@ export default function Footer() {
         </nav>
 
         <div className="footer__legal">
-          <a href="#">Impressum</a>
-          <a href="#">Datenschutz</a>
+          <a href="#/impressum">Impressum</a>
+          <a href="#/datenschutz">Datenschutz</a>
         </div>
       </div>
 
