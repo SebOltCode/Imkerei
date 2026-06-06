@@ -1,0 +1,10 @@
+# Ignore environment and build artifacts
+.claude
+node_modules/
+dist/
+*.log
+.env
+.env.*
+.DS_Store
+
+
