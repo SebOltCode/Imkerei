@@ -725,6 +725,21 @@ img { max-width: 100%; display: block; }
   transition: gap 0.2s ease;
 }
 .partner-card:hover .partner-card__link { gap: 0.7rem; }
+.partners__note {
+  margin-top: 1.8rem;
+  text-align: center;
+}
+.partners__note p {
+  display: inline-block;
+  margin: 0;
+  background: var(--wheat);
+  border-radius: 999px;
+  padding: 0.7rem 1.4rem;
+  color: var(--bark-soft);
+  font-size: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+.partners__note strong { color: var(--bark); }
 
 /* ============================================================
    CONTACT
@@ -1037,7 +1052,13 @@ img { max-width: 100%; display: block; }
 @media (max-width: 860px) {
   .about__grid { grid-template-columns: 1fr; }
   .about__media { max-width: 420px; margin: 1.5rem auto 0; }
-  .about__note { left: 0; }
+  /* Sprechblase nicht mehr als Overlay, sondern normal unter das Foto –
+     so verdeckt sie in der schmalen Ansicht keine Inhalte mehr. */
+  .about__note {
+    position: static;
+    max-width: none;
+    margin: 1.1rem 0 0;
+  }
   .contact__grid { grid-template-columns: 1fr; }
 
   .navbar__burger { display: flex; z-index: 60; }

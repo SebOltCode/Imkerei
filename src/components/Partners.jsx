@@ -9,11 +9,6 @@ export default function Partners() {
         <Reveal className="section__head">
           <span className="section__kicker">Partner & Freunde</span>
           <h2 className="section__title">Gemeinsam für die Region</h2>
-          <p className="section__lead">
-            Hier finden Sie bald unsere Partner – Hofläden, Märkte und Freunde, bei
-            denen es unseren Honig gibt. Die Verlinkungen sind als Platzhalter
-            angelegt und schnell austauschbar.
-          </p>
         </Reveal>
 
         <div className="partners__grid">
@@ -41,6 +36,13 @@ export default function Partners() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal className="partners__note" delay={120}>
+          <p>
+            <span aria-hidden="true">💛</span> Außerdem unterstützen wir von Herzen
+            den <strong>Gnadenhof in Plaggenburg</strong>.
+          </p>
+        </Reveal>
       </div>
     </section>
   )
