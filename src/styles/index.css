@@ -784,6 +784,27 @@ img { max-width: 100%; display: block; }
   opacity: 0.75;
   margin: 0.8rem 0 0;
 }
+.contact__consent {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--bark-soft);
+  margin: 0.9rem 0 0;
+}
+.contact__consent a { color: var(--honey-deep); font-weight: 600; text-decoration: underline; }
+/* Validierungs-/Fehlermeldungen */
+.form-error {
+  color: #b3261e;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0.35rem 0 0;
+}
+/* Button im Sende-Zustand */
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 .contact__thanks { text-align: center; padding: 2rem 1rem; }
 .contact__thanks-icon {
   font-size: 3rem;

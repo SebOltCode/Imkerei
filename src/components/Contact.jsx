@@ -1,15 +1,10 @@
-import { useState } from 'react'
+import { useForm, ValidationError } from '@formspree/react'
 import Reveal from './Reveal.jsx'
 
 export default function Contact() {
-  const [sent, setSent] = useState(false)
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // PLATZHALTER: Hier später eine echte Versand-Logik anbinden
-    // (z. B. E-Mail-Dienst, Formspree, eigenes Backend).
-    setSent(true)
-  }
+  // Formspree-Anbindung. Die Form-ID stammt aus dem Endpoint
+  // https://formspree.io/f/xpqepzvd
+  const [state, handleSubmit] = useForm('xpqepzvd')
 
   return (
     <section id="kontakt" className="section contact">
@@ -49,7 +44,7 @@ export default function Contact() {
         </Reveal>
 
         <Reveal className="contact__form-wrap" delay={120}>
-          {sent ? (
+          {state.succeeded ? (
             <div className="contact__thanks">
               <span className="contact__thanks-icon" aria-hidden="true">🐝</span>
               <h3>Dankeschön!</h3>
@@ -60,14 +55,25 @@ export default function Contact() {
             </div>
           ) : (
             <form className="contact__form" onSubmit={handleSubmit}>
+              {/* Aussagekräftiger Betreff in der eingehenden E-Mail */}
+              <input
+                type="hidden"
+                name="_subject"
+                value="Neue Nachricht über imkerei-olthoff.de"
+              />
+
               <div className="form-row">
                 <label htmlFor="name">Name</label>
                 <input id="name" name="name" type="text" required placeholder="Ihr Name" />
+                <ValidationError prefix="Name" field="name" errors={state.errors} className="form-error" />
               </div>
+
               <div className="form-row">
                 <label htmlFor="email">E-Mail</label>
                 <input id="email" name="email" type="email" required placeholder="ihre@email.de" />
+                <ValidationError prefix="E-Mail" field="email" errors={state.errors} className="form-error" />
               </div>
+
               <div className="form-row">
                 <label htmlFor="message">Nachricht</label>
                 <textarea
@@ -77,12 +83,35 @@ export default function Contact() {
                   required
                   placeholder="Worüber möchten Sie sprechen?"
                 />
+                <ValidationError prefix="Nachricht" field="message" errors={state.errors} className="form-error" />
               </div>
-              <button type="submit" className="btn btn--primary btn--full">
-                Nachricht senden <span aria-hidden="true">🍯</span>
+
+              {/* Allgemeiner Fehler (z. B. Netzwerkproblem) */}
+              {state.errors && (
+                <p className="form-error" role="alert">
+                  Hoppla, das hat leider nicht geklappt. Bitte versuchen Sie es
+                  erneut oder schreiben Sie uns direkt an info@imkerei-olthoff.de.
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="btn btn--primary btn--full"
+                disabled={state.submitting}
+              >
+                {state.submitting ? (
+                  'Wird gesendet …'
+                ) : (
+                  <>
+                    Nachricht senden <span aria-hidden="true">🍯</span>
+                  </>
+                )}
               </button>
-              <p className="contact__hint">
-                Formular ist ein Platzhalter – die Versand-Logik binden Sie später an.
+
+              <p className="contact__consent">
+                Mit dem Absenden stimmen Sie der Verarbeitung Ihrer Angaben gemäß
+                unserer{' '}
+                <a href="#/datenschutz">Datenschutzerklärung</a> zu.
               </p>
             </form>
           )}
