@@ -1,4 +1,5 @@
 import Reveal from './Reveal.jsx'
+import TiltCard from './TiltCard.jsx'
 import { partners } from '../data/partners.js'
 import { asset } from '../utils/asset.js'
 
@@ -14,6 +15,7 @@ export default function Partners() {
         <div className="partners__grid">
           {partners.map((p, i) => (
             <Reveal key={p.id} delay={i * 80}>
+              <TiltCard max={6}>
               <a
                 className="partner-card"
                 href={p.url}
@@ -33,6 +35,7 @@ export default function Partners() {
                   Mehr erfahren <span aria-hidden="true">→</span>
                 </span>
               </a>
+              </TiltCard>
             </Reveal>
           ))}
         </div>

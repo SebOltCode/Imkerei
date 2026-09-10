@@ -9,6 +9,7 @@ import Partners from './components/Partners.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
 import AnimatedBee from './components/AnimatedBee.jsx'
+import ScrollProgress from './components/ScrollProgress.jsx'
 import Impressum from './components/Impressum.jsx'
 import Datenschutz from './components/Datenschutz.jsx'
 
@@ -85,6 +86,7 @@ export default function App() {
 
   return (
     <>
+      <ScrollProgress />
       <AnimatedBee />
       <Navbar />
       {route === 'impressum' ? (

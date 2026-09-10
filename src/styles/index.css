@@ -1047,6 +1047,198 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================================
+   WOW-EFFEKTE: 3D-Wabe, Titel-Animation, Parallaxe, Tilt, Scrollbalken
+   ============================================================ */
+
+/* --- Hero-Layout: Text links, 3D-Wabe rechts --- */
+.hero__inner {
+  /* bewusst NICHT positioniert: der Canvas (.hero__canvas) soll sich
+     am Hero ausrichten, nicht an diesem Raster */
+  width: min(100% - 2.4rem, var(--maxw));
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+.hero__content { text-align: left; max-width: 640px; }
+.hero__subtitle { margin: 0 0 2rem; }
+.hero__actions,
+.hero__badges { justify-content: flex-start; }
+
+/* 3D-Bühne */
+.hero__3d {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  /* liegendes Format wie ein echtes Imker-Rähmchen */
+  aspect-ratio: 1.55;
+  margin-inline: auto;
+}
+/* Der 3D-Canvas liegt über dem ganzen Hero (unter dem Text, über der
+   Landschaft) und lässt Klicks durch. Sein Hintergrund ist transparent,
+   das Leuchten des Platzhalters scheint hindurch. */
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.hero__canvas canvas { display: block; }
+.hero__3d-glow {
+  position: absolute;
+  inset: 8%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(246, 206, 91, 0.6) 0%, rgba(246, 206, 91, 0) 65%);
+  filter: blur(28px);
+  animation: glowPulse 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes glowPulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+/* Platzhalter, solange die 3D-Szene lädt (oder falls WebGL fehlt) */
+.hero__3d-fallback {
+  position: absolute;
+  inset: 6% 4%;
+  z-index: 1;
+  border-radius: 8px;
+  border: 10px solid #b3803f;
+  background: linear-gradient(180deg, #f6ecd6 0%, #f0e0bd 45%, var(--honey) 62%, var(--honey-deep) 100%);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* Parallaxe der Landschaft (--hero-scroll wird in Hero.jsx gesetzt) */
+.hero__clouds { transform: translateY(calc(var(--hero-scroll, 0) * 0.35px)); }
+.hero__hills { transform: translateY(calc(var(--hero-scroll, 0) * 0.15px)); }
+
+/* Titel: Wort für Wort nach oben einblenden */
+.hero__word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.hero__word-inner {
+  display: inline-block;
+  transform: translateY(110%) rotate(2deg);
+  animation: wordIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes wordIn {
+  to { transform: translateY(0) rotate(0deg); }
+}
+.hero__fade {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes fadeUp {
+  to { opacity: 1; transform: none; }
+}
+
+/* --- Glanz-Sweep auf Haupt-Buttons --- */
+.btn--primary { position: relative; overflow: hidden; isolation: isolate; }
+.btn--primary::after {
+  content: '';
+  position: absolute;
+  inset: -20% -40%;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.55) 50%, transparent 65%);
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+.btn--primary:hover::after { animation: btnShine 0.9s ease forwards; }
+@keyframes btnShine {
+  to { transform: translateX(100%); }
+}
+
+/* --- Dezentes Wabenmuster im Honig-Bereich --- */
+.products::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cpath fill='%23c97b1e' fill-opacity='0.09' fill-rule='evenodd' d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/svg%3E");
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 40%, transparent 85%);
+  mask-image: radial-gradient(ellipse at center, #000 40%, transparent 85%);
+}
+.products .container { position: relative; }
+
+/* --- 3D-Tilt-Karten mit Glanzlicht --- */
+.tilt {
+  --rx: 0deg;
+  --ry: 0deg;
+  --gx: 50%;
+  --gy: 50%;
+  --go: 0;
+  position: relative;
+  height: 100%;
+  border-radius: var(--radius-lg);
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 0.35s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.tilt.is-tilting { transition: transform 0.06s linear; }
+.tilt__glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--gx) var(--gy), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 55%);
+  opacity: var(--go);
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+/* --- Honig-Scrollbalken --- */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  z-index: 70;
+  pointer-events: none;
+}
+.scroll-progress__bar {
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(var(--p, 0));
+  background: linear-gradient(90deg, var(--honey-light), var(--honey), var(--honey-deep));
+  box-shadow: 0 0 12px rgba(233, 163, 58, 0.55);
+}
+.scroll-progress__drop {
+  position: absolute;
+  top: 2px;
+  left: calc(var(--p, 0) * 100%);
+  width: 11px;
+  height: 15px;
+  margin-left: -6px;
+  background: linear-gradient(180deg, var(--honey), var(--honey-deep));
+  border-radius: 50% 50% 50% 50% / 35% 35% 65% 65%;
+  opacity: var(--vis, 0);
+  transition: opacity 0.3s ease;
+  filter: drop-shadow(0 2px 3px rgba(120, 70, 10, 0.35));
+}
+
+/* --- Hero auf schmalen Bildschirmen: Wabe oben, Text zentriert --- */
+@media (max-width: 900px) {
+  .hero__inner { grid-template-columns: 1fr; gap: 0.5rem; }
+  .hero__3d { order: -1; max-width: 300px; }
+  .hero__content { text-align: center; margin-inline: auto; }
+  .hero__subtitle { margin: 0 auto 2rem; }
+  .hero__actions,
+  .hero__badges { justify-content: center; }
+}
+@media (max-width: 480px) {
+  .hero__3d { max-width: 240px; }
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 860px) {
@@ -1100,4 +1292,9 @@ img { max-width: 100%; display: block; }
   }
   .bee-flight { display: none; } /* keine fliegende Biene */
   .reveal { opacity: 1; transform: none; }
+  /* Titel & Hero-Elemente sofort sichtbar, keine Verzögerung */
+  .hero__word-inner,
+  .hero__fade { animation-delay: 0s !important; }
+  .hero__clouds,
+  .hero__hills { transform: none; }
 }
