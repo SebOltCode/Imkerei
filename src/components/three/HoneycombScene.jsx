@@ -14,6 +14,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Environment, Float, Lightformer } from '@react-three/drei'
 import * as THREE from 'three'
+import { BEE_LENGTH, createBee, createBeeAssets, makeRoute, sampleRoute } from './BeeModel.jsx'
 
 // --- Wabenraster ---------------------------------------------------------
 const CELL_R = 0.085 // Umkreisradius einer Zelle
@@ -87,6 +88,23 @@ function buildComb(cols, rows) {
 
 function useCombData(cols, rows) {
   return useMemo(() => buildComb(cols, rows), [cols, rows])
+}
+
+// Honigsaum: dicker, gewölbter Rand unter dem Unterträger, aus dem die
+// Fäden erst entstehen. Überlappende Kugeln ergeben die runde, lappige
+// Silhouette – genau die Form, die frisch geschleuderte Waben zeigen.
+function buildRim(innerW, innerH) {
+  const rnd = mulberry32(31)
+  const n = 18
+  const yBar = -innerH / 2 - BAR // Unterkante des Rähmchens
+  return Array.from({ length: n }, (_, i) => {
+    const x = -innerW / 2 + ((i + 0.5) * innerW) / n
+    // ein Teil der Lappen hängt deutlich tiefer -> unregelmäßige Tropfkante
+    const deep = rnd() < 0.32
+    const r = deep ? 0.2 + rnd() * 0.12 : 0.115 + rnd() * 0.07
+    const y = yBar + 0.07
+    return { x, y, r, bottom: y - r, deep }
+  })
 }
 
 function useGeometries() {
@@ -177,12 +195,13 @@ function useInstances(ref, items, place, tint) {
   }, [ref, items, place, tint])
 }
 
-function Comb({ combRef, data, geo, mats }) {
+function Comb({ combRef, data, rim, geo, mats, children }) {
   const { cells, innerW, innerH } = data
   const wallRef = useRef()
   const honeyRef = useRef()
   const capRef = useRef()
   const openRef = useRef()
+  const rimRef = useRef()
 
   const groups = useMemo(
     () => ({
@@ -214,10 +233,19 @@ function Comb({ combRef, data, geo, mats }) {
   )
   const tintCap = useMemo(() => (col, c) => col.setScalar(0.86 + c.v * 0.26), [])
 
+  const placeRim = useMemo(
+    () => (d, l) => {
+      d.position.set(l.x, l.y, 0)
+      d.scale.set(l.r, l.r * 1.05, Math.min(l.r, 0.15))
+    },
+    [],
+  )
+
   useInstances(wallRef, groups.all, placeWall, tintWall)
   useInstances(honeyRef, groups.honey, placeHoney, tintHoney)
   useInstances(capRef, groups.cap, placeCap, tintCap)
   useInstances(openRef, groups.open, placeOpen)
+  useInstances(rimRef, rim, placeRim)
 
   const outerW = innerW + BAR * 2
   const outerH = innerH + BAR * 2
@@ -247,8 +275,78 @@ function Comb({ combRef, data, geo, mats }) {
       <mesh position={[innerW / 2 + BAR / 2, 0, zBar]} material={mats.woodDark}>
         <boxGeometry args={[BAR, innerH, CELL_D + 0.14]} />
       </mesh>
+
+      {/* Honigsaum an der Unterkante – aus ihm entstehen die Fäden */}
+      <instancedMesh ref={rimRef} args={[geo.blob, mats.flow, rim.length]} />
+
+      {children}
     </group>
   )
+}
+
+// --- Bienen, die über die Wabe laufen ------------------------------------
+// Sie sind Kinder der Wabengruppe und neigen sich daher mit ihr mit.
+// Maßstab aus der Natur: eine Biene ist rund 13 mm lang, eine Zelle 5,4 mm
+// breit – die Biene misst also gut zwei Zellen.
+const CELL_MM = 5.4
+const BEE_MM = 13
+const CRAWL_SCALE = (BEE_MM / CELL_MM) * (Math.sqrt(3) * CELL_R) / BEE_LENGTH
+
+const cPos = new THREE.Vector3()
+const cDir = new THREE.Vector3()
+const axX = new THREE.Vector3()
+const axY = new THREE.Vector3(0, 0, 1) // Rücken der Biene zeigt aus der Wabe
+const axZ = new THREE.Vector3()
+const basis = new THREE.Matrix4()
+
+function Crawlers({ count, innerW, innerH, animate }) {
+  const assets = useMemo(() => createBeeAssets(), [])
+  useEffect(() => () => assets.dispose(), [assets])
+
+  const bees = useMemo(
+    () =>
+      Array.from({ length: count }, () => {
+        const obj = createBee(assets)
+        // Im Gehen liegen die Flügel angelegt über dem Hinterleib
+        obj.userData.wingL.rotation.set(0, -Math.PI * 0.44, 0.06)
+        obj.userData.wingR.rotation.set(0, Math.PI * 0.44, -0.06)
+        obj.scale.setScalar(CRAWL_SCALE)
+        return {
+          obj,
+          route: makeRoute({
+            w: innerW * 0.82,
+            h: innerH * 0.74,
+            speed: 0.2 + Math.random() * 0.18,
+            holdChance: 0.7, // Bienen halten auf der Wabe ständig an
+            minHold: 0.8,
+            maxHold: 4,
+            minPts: 4,
+            maxPts: 7,
+          }),
+          phase: Math.random() * Math.PI * 2,
+        }
+      }),
+    [count, innerW, innerH, assets],
+  )
+
+  useFrame((state) => {
+    const t = animate ? state.clock.elapsedTime : 0
+    bees.forEach((b) => {
+      const resting = sampleRoute(b.route, t, cPos, cDir)
+      // knapp über der Wabenoberfläche sitzen
+      const step = animate && !resting ? Math.sin(t * 13 + b.phase) * 0.004 : 0
+      b.obj.position.set(cPos.x, cPos.y, CELL_D / 2 + 0.055 + step)
+
+      if (cDir.lengthSq() > 1e-8) {
+        axZ.copy(cDir).setZ(0).normalize()
+        axX.set(-axZ.y, axZ.x, 0) // Rechtssystem: X = Y × Z
+        basis.makeBasis(axX, axY, axZ)
+        b.obj.quaternion.setFromRotationMatrix(basis)
+      }
+    })
+  })
+
+  return bees.map((b, i) => <primitive key={i} object={b.obj} />)
 }
 
 function Particles({ count, geo, animate }) {
@@ -292,19 +390,25 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
   const layout = useRef({ x: 0, y: 0, s: 1 })
   const dummy = useMemo(() => new THREE.Object3D(), [])
 
-  // Genau zwei Austrittsstellen: eine zufällig in der linken, eine in der
-  // rechten Hälfte des Unterträgers. Bewusst echtes Math.random(), damit die
-  // Wabe bei jedem Seitenaufruf anders tropft.
+  const rim = useMemo(() => buildRim(data.innerW, data.innerH), [data.innerW, data.innerH])
+
+  // Genau zwei Austrittsstellen: eine zufällig links, eine rechts. Sie sitzen
+  // an einem der tief hängenden Saumlappen – von dort löst sich der Faden,
+  // statt aus dem Nichts zu entspringen.
   const sources = useMemo(() => {
-    const half = data.innerW * 0.42
-    const y = -data.innerH / 2 - BAR
-    return [-1, 1].map((side) => ({
-      x: side * half * (0.25 + Math.random() * 0.75),
-      y,
-      // eigener Phasenversatz, damit die beiden Fäden nicht im Gleichtakt schwingen
-      phase: Math.random() * Math.PI * 2,
-    }))
-  }, [data.innerW, data.innerH])
+    const pick = (lobes) => lobes[Math.floor(Math.random() * lobes.length)]
+    const deep = rim.filter((l) => l.deep)
+    const left = deep.filter((l) => l.x < 0)
+    const right = deep.filter((l) => l.x > 0)
+    return [left, right].map((side, i) => {
+      const l = pick(side.length ? side : rim.filter((r) => (i === 0 ? r.x < 0 : r.x > 0)))
+      return {
+        x: l.x,
+        y: l.bottom + 0.02, // knapp im Saum, damit der Faden anschließt
+        phase: Math.random() * Math.PI * 2,
+      }
+    })
+  }, [rim])
 
   const sim = useMemo(
     () => ({
@@ -503,15 +607,16 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
       const len = ny - f.tipY
       if (len > 0.005) {
         const ph = f.src.phase
-        const rBase = 0.05 * S
+        // deutlich dünner als zuvor: echte Honigfäden sind fadenfein
+        const rBase = 0.03 * S
         // leichtes Pulsieren, solange Honig nachläuft
         const pulse = f.phase === 'flow' ? 1 + 0.05 * Math.sin(t * 2.2 + ph) : 1
         // beim Zurückschnellen wird der Stummel kurz dicker
         const retractBulge = f.phase === 'retract' ? 1 + 0.55 * clamp01(f.t / 0.45) : 1
-        // zwei überlagerte Wellen mit eigenem Phasenversatz je Faden
+        // nur noch ein Hauch Bewegung – im Video hängen die Fäden fast senkrecht
         const sway = (u) =>
-          (Math.sin(u * 5.5 + t * 1.6 + ph) * 0.7 + Math.sin(u * 9.3 - t * 1.1 + ph * 1.7) * 0.3) *
-          0.014 * S * (0.2 + u * 0.8)
+          (Math.sin(u * 3.1 + t * 1.1 + ph) * 0.7 + Math.sin(u * 6.2 - t * 0.7 + ph * 1.7) * 0.3) *
+          0.004 * S * (0.15 + u * 0.85)
 
         for (let j = 0; j < SEGS; j++) {
           const u0 = j / SEGS
@@ -519,8 +624,8 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
           vA.set(nx + sway(u0), ny - u0 * len, nozzleWorld.z)
           vB.set(nx + sway(u1), ny - u1 * len, nozzleWorld.z)
           const um = (u0 + u1) / 2
-          // dick am Austritt, rasch verjüngend
-          const taper = 0.3 + 0.7 * Math.exp(-um * 3.6)
+          // am Austritt etwas dicker, dann über die Länge gleichmäßig fein
+          const taper = 0.62 + 0.38 * Math.exp(-um * 4.5)
           const tipBulge = f.phase === 'extend' ? 1 + 1.6 * Math.pow(um, 8) : 1
           // schmale Gauss-Kerbe an der Abrissstelle
           const neck =
@@ -607,7 +712,14 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
 
   return (
     <>
-      <Comb combRef={combRef} data={data} geo={geo} mats={mats} />
+      <Comb combRef={combRef} data={data} rim={rim} geo={geo} mats={mats}>
+        <Crawlers
+          count={cols > 20 ? 3 : 2}
+          innerW={data.innerW}
+          innerH={data.innerH}
+          animate={animate}
+        />
+      </Comb>
       <instancedMesh ref={flowRef} args={[geo.seg, mats.flow, maxSegs]} frustumCulled={false} />
       <instancedMesh ref={blobRef} args={[geo.blob, mats.flow, maxBlobs]} frustumCulled={false} />
       <Particles count={cols > 20 ? 10 : 6} geo={geo} animate={animate} />

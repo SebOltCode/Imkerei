@@ -924,127 +924,15 @@ img { max-width: 100%; display: block; }
 .legal__card-tel { display: block; margin-top: 0.4rem; color: var(--honey-deep); font-weight: 600; }
 
 /* ============================================================
-   DIE BIENE 🐝 – Flugbahn & Flügelschlag
+   BIENENSCHWARM 🐝 – 3D-Szene über der Seite
    ============================================================ */
-.bee-flight {
+.bee-canvas {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   z-index: 40;
   pointer-events: none;
-  will-change: transform;
 }
-/* Jede Biene fliegt eine eigene Bahn, in eigenem Tempo und mit
-   negativem Startversatz, damit der Schwarm nie synchron wirkt. */
-.bee-flight--1 { animation: beePath1 34s ease-in-out infinite; }
-.bee-flight--2 { animation: beePath2 43s ease-in-out infinite; animation-delay: -7s; }
-.bee-flight--3 { animation: beePath3 29s ease-in-out infinite; animation-delay: -15s; }
-.bee-flight--4 { animation: beePath4 47s ease-in-out infinite; animation-delay: -23s; }
-.bee-flight--5 { animation: beePath5 38s ease-in-out infinite; animation-delay: -31s; }
-
-/* zusätzliches sanftes Auf-und-Ab, damit der Flug lebendig wirkt */
-.bee-bob { animation: beeBob 1.4s ease-in-out infinite; }
-
-.bee { display: block; filter: drop-shadow(0 6px 6px rgba(60, 44, 20, 0.22)); }
-
-/* Flügelschlag – die Flügel wurzeln am Thorax (rechts) und klappen
-   in der Draufsicht perspektivisch nach oben bzw. unten zum Körper. */
-.bee-wing {
-  transform-box: fill-box;
-  will-change: transform, opacity;
-}
-.bee-wing--top {
-  transform-origin: 90% 100%;
-  animation: wingTop 0.13s ease-in-out infinite;
-}
-.bee-wing--bottom {
-  transform-origin: 90% 0%;
-  animation: wingBottom 0.13s ease-in-out infinite;
-}
-@keyframes wingTop {
-  0%, 100% { transform: scaleY(1) rotate(0deg); opacity: 0.95; }
-  50% { transform: scaleY(0.42) rotate(7deg); opacity: 0.7; }
-}
-@keyframes wingBottom {
-  0%, 100% { transform: scaleY(1) rotate(0deg); opacity: 0.95; }
-  50% { transform: scaleY(0.42) rotate(-7deg); opacity: 0.7; }
-}
-@keyframes beeBob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
-}
-
-/* Die grossen Reisen über die Seite – jede mit kleinen "Landungen"
-   (Pausen), bei denen die Biene kurz an einer Stelle verweilt.
-   Koordinaten in vw/vh, damit die Bienen den ganzen Viewport nutzen. */
-
-/* Bahn 1 – wandert quer von oben links nach unten rechts */
-@keyframes beePath1 {
-  0%   { transform: translate(-8vw, 22vh) rotate(8deg) scale(0.9); }
-  8%   { transform: translate(22vw, 16vh) rotate(6deg) scale(1); }
-  14%  { transform: translate(24vw, 15vh) rotate(0deg) scale(1); }
-  18%  { transform: translate(24vw, 15vh) rotate(0deg) scale(1); }
-  28%  { transform: translate(72vw, 26vh) rotate(-10deg) scale(1.05); }
-  34%  { transform: translate(78vw, 24vh) rotate(0deg) scale(1); }
-  39%  { transform: translate(78vw, 24vh) rotate(0deg) scale(1); }
-  50%  { transform: translate(40vw, 62vh) rotate(12deg) scaleX(-1); }
-  56%  { transform: translate(34vw, 70vh) rotate(0deg) scaleX(-1); }
-  61%  { transform: translate(34vw, 70vh) rotate(0deg) scaleX(-1); }
-  72%  { transform: translate(82vw, 74vh) rotate(-8deg) scale(1); }
-  78%  { transform: translate(86vw, 78vh) rotate(0deg) scale(0.95); }
-  83%  { transform: translate(86vw, 78vh) rotate(0deg) scale(0.95); }
-  92%  { transform: translate(30vw, 40vh) rotate(10deg) scale(1); }
-  100% { transform: translate(-8vw, 22vh) rotate(8deg) scale(0.9); }
-}
-
-/* Bahn 2 – kommt von rechts, zieht durch die obere Hälfte nach links */
-@keyframes beePath2 {
-  0%   { transform: translate(106vw, 16vh) rotate(-8deg) scaleX(-1); }
-  12%  { transform: translate(64vw, 22vh) rotate(-4deg) scaleX(-1); }
-  18%  { transform: translate(60vw, 24vh) rotate(0deg) scaleX(-1); }
-  24%  { transform: translate(60vw, 24vh) rotate(0deg) scaleX(-1); }
-  44%  { transform: translate(14vw, 14vh) rotate(-6deg) scaleX(-1); }
-  50%  { transform: translate(10vw, 16vh) rotate(0deg) scaleX(-1); }
-  56%  { transform: translate(10vw, 16vh) rotate(0deg) scaleX(-1); }
-  74%  { transform: translate(48vw, 52vh) rotate(10deg) scaleX(1); }
-  90%  { transform: translate(90vw, 40vh) rotate(-6deg) scaleX(1); }
-  100% { transform: translate(106vw, 16vh) rotate(-8deg) scaleX(-1); }
-}
-
-/* Bahn 3 – diagonale Schleife von unten links nach oben rechts */
-@keyframes beePath3 {
-  0%   { transform: translate(-10vw, 70vh) rotate(-12deg) scale(1); }
-  16%  { transform: translate(30vw, 52vh) rotate(-6deg) scale(1); }
-  22%  { transform: translate(34vw, 50vh) rotate(0deg) scale(1); }
-  27%  { transform: translate(34vw, 50vh) rotate(0deg) scale(1); }
-  46%  { transform: translate(80vw, 30vh) rotate(-10deg) scale(1); }
-  52%  { transform: translate(86vw, 28vh) rotate(0deg) scale(1); }
-  57%  { transform: translate(86vw, 28vh) rotate(0deg) scale(1); }
-  78%  { transform: translate(40vw, 18vh) rotate(8deg) scaleX(-1); }
-  100% { transform: translate(-10vw, 70vh) rotate(-12deg) scaleX(1); }
-}
-
-/* Bahn 4 – ruhiger Flug oben über die ganze Breite */
-@keyframes beePath4 {
-  0%   { transform: translate(-8vw, 8vh) rotate(6deg) scale(0.95); }
-  20%  { transform: translate(40vw, 6vh) rotate(4deg) scale(1); }
-  40%  { transform: translate(88vw, 12vh) rotate(-6deg) scale(1); }
-  46%  { transform: translate(94vw, 10vh) rotate(0deg) scale(1); }
-  52%  { transform: translate(94vw, 10vh) rotate(0deg) scale(1); }
-  74%  { transform: translate(45vw, 32vh) rotate(8deg) scaleX(-1); }
-  100% { transform: translate(-8vw, 8vh) rotate(6deg) scaleX(1); }
-}
-
-/* Bahn 5 – streift den unteren Rand der Seite */
-@keyframes beePath5 {
-  0%   { transform: translate(105vw, 82vh) rotate(8deg) scaleX(-1); }
-  18%  { transform: translate(60vw, 78vh) rotate(4deg) scaleX(-1); }
-  38%  { transform: translate(18vw, 84vh) rotate(-6deg) scaleX(-1); }
-  44%  { transform: translate(12vw, 82vh) rotate(0deg) scaleX(-1); }
-  50%  { transform: translate(12vw, 82vh) rotate(0deg) scaleX(-1); }
-  72%  { transform: translate(55vw, 60vh) rotate(10deg) scaleX(1); }
-  100% { transform: translate(105vw, 82vh) rotate(8deg) scaleX(-1); }
-}
+.bee-canvas canvas { display: block; }
 
 /* ============================================================
    WOW-EFFEKTE: 3D-Wabe, Titel-Animation, Parallaxe, Tilt, Scrollbalken
@@ -1290,7 +1178,7 @@ img { max-width: 100%; display: block; }
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-  .bee-flight { display: none; } /* keine fliegende Biene */
+  .bee-canvas { display: none; } /* kein Bienenschwarm */
   .reveal { opacity: 1; transform: none; }
   /* Titel & Hero-Elemente sofort sichtbar, keine Verzögerung */
   .hero__word-inner,
