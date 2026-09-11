@@ -14,7 +14,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Environment, Float, Lightformer } from '@react-three/drei'
 import * as THREE from 'three'
-import { BEE_LENGTH, createBee, createBeeAssets, makeRoute, sampleRoute } from './BeeModel.jsx'
+import { BEE_LENGTH, createBee, createBeeAssets } from './BeeModel.jsx'
+import { makeRoute, sampleRoute } from './routes.js'
 
 // --- Wabenraster ---------------------------------------------------------
 const CELL_R = 0.085 // Umkreisradius einer Zelle
@@ -252,7 +253,7 @@ function Comb({ combRef, data, rim, geo, mats, children }) {
   const zBar = 0
 
   return (
-    <group ref={combRef}>
+    <group ref={combRef} visible={false}>
       <instancedMesh ref={wallRef} args={[geo.wall, mats.wall, groups.all.length]} />
       <instancedMesh ref={honeyRef} args={[geo.honey, mats.honey, groups.honey.length]} />
       <instancedMesh ref={capRef} args={[geo.cap, mats.cap, groups.cap.length]} />
@@ -379,6 +380,7 @@ const nozzleWorld = new THREE.Vector3()
 
 function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
   const viewport = useThree((s) => s.viewport)
+  const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
   const geo = useGeometries()
   const mats = useMaterials()
@@ -432,9 +434,9 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
     [sources],
   )
 
-  useEffect(() => {
-    onLoaded?.()
-  }, [onLoaded])
+  // Erst wenn einmal vermessen wurde, darf die Wabe sichtbar werden –
+  // sonst blitzt sie beim Laden kurz an der falschen Stelle auf.
+  const measured = useRef(false)
 
   // Layout: Platzhalter-Rechteck -> Weltkoordinaten
   useEffect(() => {
@@ -444,6 +446,11 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
       const hero = heroEl.getBoundingClientRect()
       const r = spacerEl.getBoundingClientRect()
       if (!hero.width || !hero.height) return
+      // Erst rechnen, wenn der Canvas tatsächlich die Größe des Hero hat.
+      // Direkt nach dem Mounten steht er noch auf seiner Standardgröße
+      // (300x150) – dann stimmt das Verhältnis Weltmaß/Pixel nicht und die
+      // Wabe säße kurz riesig an der falschen Stelle.
+      if (Math.abs(size.width - hero.width) > 2) return
       const cx = (r.left + r.width / 2 - hero.left) / hero.width
       const cy = (r.top + r.height / 2 - hero.top) / hero.height
       layout.current = {
@@ -456,6 +463,11 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
       if (comb) {
         comb.position.set(layout.current.x, layout.current.y, 0)
         comb.scale.setScalar(layout.current.s)
+        comb.visible = true
+      }
+      if (!measured.current) {
+        measured.current = true
+        onLoaded?.() // erst jetzt steht die Wabe an ihrem Platz
       }
       invalidate()
     }
@@ -464,7 +476,7 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
     ro.observe(heroEl)
     ro.observe(spacerEl)
     return () => ro.disconnect()
-  }, [viewport.width, viewport.height, heroEl, spacerEl, data.innerW, invalidate])
+  }, [viewport.width, viewport.height, size.width, heroEl, spacerEl, data.innerW, invalidate, onLoaded])
 
   const addToPool = (x, amount, S) => {
     const { pools } = sim
@@ -482,7 +494,7 @@ function Stage({ cols, rows, pointer, animate, spacerEl, heroEl, onLoaded }) {
     const comb = combRef.current
     const flow = flowRef.current
     const blobs = blobRef.current
-    if (!comb || !flow || !blobs) return
+    if (!comb || !flow || !blobs || !measured.current) return
     const dt = Math.min(delta, 0.05)
     const t = state.clock.elapsedTime
     const L = layout.current

@@ -34,6 +34,16 @@
   --shadow-md: 0 14px 34px rgba(90, 64, 20, 0.14);
   --shadow-lg: 0 28px 60px rgba(90, 64, 20, 0.18);
 
+  /* Liquid Glass: milchige Scheibe mit Lichtkante oben */
+  --glass-blur: 18px;
+  --glass-face: linear-gradient(155deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.38));
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-shine: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --glass-shadow: 0 12px 34px rgba(92, 64, 20, 0.1), 0 2px 8px rgba(92, 64, 20, 0.06);
+  /* dunkle Variante fuer den Ostfriesland-Abschnitt */
+  --glass-face-dark: linear-gradient(155deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
+  --glass-border-dark: rgba(255, 255, 255, 0.24);
+
   --radius: 18px;
   --radius-lg: 28px;
   --maxw: 1160px;
@@ -187,9 +197,11 @@ img { max-width: 100%; display: block; }
   padding: 0.55rem 0;
 }
 .navbar--scrolled {
-  background: rgba(251, 246, 236, 0.92);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.45));
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 26px rgba(92, 64, 20, 0.09);
 }
 .navbar__inner {
   width: min(100% - 2.4rem, var(--maxw));
@@ -275,94 +287,36 @@ img { max-width: 100%; display: block; }
   text-align: center;
   padding: 7rem 1.2rem 4rem;
   overflow: hidden;
-  background: linear-gradient(180deg, #fdf3da 0%, #fbe9c4 38%, #f7f3e4 100%);
+  background: linear-gradient(180deg, #fdf3da 0%, #f3efe0 70%, var(--cream) 100%);
 }
-.hero__scenery { position: absolute; inset: 0; z-index: 0; }
+.hero__scenery { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 
-.hero__sun {
+/* Echte Blumenwiese als Hintergrund. Das Foto ist hochformatig, "cover"
+   zeigt daher einen breiten Ausschnitt mit Horizont und Bluetenmeer. */
+.hero__photo {
   position: absolute;
-  top: 12%;
-  left: 50%;
-  width: 220px;
-  height: 220px;
-  transform: translateX(-50%);
-  background: radial-gradient(circle, rgba(255, 222, 130, 0.95) 0%, rgba(255, 222, 130, 0.4) 45%, rgba(255, 222, 130, 0) 70%);
-  border-radius: 50%;
-  animation: sunGlow 7s ease-in-out infinite;
-}
-@keyframes sunGlow {
-  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.9; }
-  50% { transform: translateX(-50%) scale(1.08); opacity: 1; }
+  inset: -6% 0 0;
+  background: url("/bilder/blumenwiese.webp") center 34% / cover no-repeat;
+  transform: translateY(calc(var(--hero-scroll, 0) * 0.12px)) scale(1.06);
+  will-change: transform;
 }
 
-.hero__clouds { position: absolute; inset: 0; }
-.cloud {
+/* Lichtschleier: links kraeftig, damit die dunkle Schrift lesbar bleibt,
+   nach rechts offen fuers Foto, unten Uebergang ins Seitenweiss. */
+.hero__scrim {
   position: absolute;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 999px;
-  filter: blur(1px);
-  opacity: 0.85;
-}
-.cloud::before,
-.cloud::after {
-  content: '';
-  position: absolute;
-  background: inherit;
-  border-radius: 50%;
-}
-.cloud--1 {
-  width: 120px; height: 30px; top: 18%; left: -160px;
-  animation: drift 38s linear infinite;
-}
-.cloud--1::before { width: 50px; height: 50px; top: -22px; left: 20px; }
-.cloud--1::after { width: 38px; height: 38px; top: -16px; left: 60px; }
-.cloud--2 {
-  width: 90px; height: 24px; top: 30%; left: -140px;
-  animation: drift 52s linear infinite; animation-delay: -10s; opacity: 0.7;
-}
-.cloud--2::before { width: 40px; height: 40px; top: -18px; left: 14px; }
-.cloud--2::after { width: 30px; height: 30px; top: -12px; left: 46px; }
-.cloud--3 {
-  width: 140px; height: 34px; top: 12%; left: -200px;
-  animation: drift 64s linear infinite; animation-delay: -28s; opacity: 0.6;
-}
-.cloud--3::before { width: 56px; height: 56px; top: -26px; left: 24px; }
-.cloud--3::after { width: 42px; height: 42px; top: -18px; left: 70px; }
-@keyframes drift {
-  to { transform: translateX(calc(100vw + 260px)); }
-}
-
-.hero__hills {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 38vh;
-  min-height: 220px;
-}
-
-.hero__grass {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-}
-.blade {
-  width: 8px;
-  height: calc(28px + (var(--i) % 3) * 12px);
-  background: linear-gradient(to top, var(--moss), var(--moss-light));
-  border-radius: 8px 8px 0 0;
-  transform-origin: bottom center;
-  animation: sway 3.4s ease-in-out infinite;
-  animation-delay: calc(var(--i) * -0.4s);
-}
-@keyframes sway {
-  0%, 100% { transform: rotate(-6deg); }
-  50% { transform: rotate(6deg); }
+  inset: 0;
+  background:
+    linear-gradient(
+      100deg,
+      rgba(253, 246, 232, 0.97) 0%,
+      rgba(253, 246, 232, 0.92) 26%,
+      rgba(253, 246, 232, 0.58) 46%,
+      rgba(253, 246, 232, 0.18) 64%,
+      rgba(253, 246, 232, 0.04) 80%
+    ),
+    linear-gradient(180deg, rgba(253, 246, 232, 0.5) 0%, rgba(253, 246, 232, 0) 22%),
+    linear-gradient(0deg, var(--cream) 0%, rgba(251, 246, 236, 0.75) 8%, rgba(251, 246, 236, 0) 24%);
 }
 
 .hero__content {
@@ -372,14 +326,16 @@ img { max-width: 100%; display: block; }
 }
 .hero__eyebrow {
   display: inline-block;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(201, 123, 30, 0.25);
+  background: var(--glass-face);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 22px rgba(92, 64, 20, 0.1), var(--glass-shine);
   padding: 0.45rem 1.1rem;
   border-radius: 999px;
   font-weight: 700;
   color: var(--honey-deep);
   margin-bottom: 1.4rem;
-  box-shadow: var(--shadow-sm);
 }
 .hero__title {
   font-size: clamp(2.6rem, 7vw, 5rem);
@@ -461,7 +417,14 @@ img { max-width: 100%; display: block; }
 /* ============================================================
    ABOUT
    ============================================================ */
-.about { background: var(--cream); }
+/* Farbige Schleier im Untergrund: Erst dadurch bekommt das Glas etwas
+   zum Verwischen und sieht nach Glas aus statt nach heller Farbe. */
+.about {
+  background:
+    radial-gradient(58% 46% at 12% 18%, rgba(233, 163, 58, 0.26), transparent 70%),
+    radial-gradient(52% 44% at 88% 72%, rgba(169, 207, 134, 0.24), transparent 70%),
+    var(--cream);
+}
 .about__grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -477,10 +440,13 @@ img { max-width: 100%; display: block; }
   height: 48px;
   display: grid;
   place-items: center;
-  background: var(--wheat);
-  border-radius: 14px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 6px 16px rgba(92, 64, 20, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
   font-size: 1.4rem;
-  box-shadow: var(--shadow-sm);
 }
 .about__values strong { display: block; color: var(--bark); }
 .about__values p { margin: 0.1rem 0 0; font-size: 0.97rem; }
@@ -525,18 +491,25 @@ img { max-width: 100%; display: block; }
 /* ============================================================
    PRODUCTS
    ============================================================ */
-.products { background: linear-gradient(180deg, var(--cream), var(--wheat)); }
+.products {
+  background:
+    radial-gradient(50% 40% at 20% 12%, rgba(246, 206, 91, 0.42), transparent 70%),
+    radial-gradient(46% 40% at 82% 80%, rgba(201, 123, 30, 0.22), transparent 70%),
+    linear-gradient(180deg, var(--cream), var(--wheat));
+}
 .products__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.6rem;
 }
 .product-card {
-  background: var(--white);
+  background: var(--glass-face);
+  backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-shine);
   border-radius: var(--radius-lg);
   padding: 2rem 1.6rem;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid rgba(201, 123, 30, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
   position: relative;
@@ -554,7 +527,10 @@ img { max-width: 100%; display: block; }
   opacity: 0.18;
   transition: transform 0.4s ease;
 }
-.product-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-md); }
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 22px 48px rgba(92, 64, 20, 0.16), var(--glass-shine);
+}
 .product-card:hover::before { transform: scale(1.5); }
 .product-card--honey { --card-accent: var(--honey); }
 .product-card--moss { --card-accent: var(--moss-light); }
@@ -562,8 +538,18 @@ img { max-width: 100%; display: block; }
 .product-card--amber { --card-accent: var(--amber); }
 
 .product-card__emoji {
-  font-size: 2.6rem;
-  margin-bottom: 0.8rem;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 6px 16px rgba(92, 64, 20, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  margin-bottom: 1rem;
   position: relative;
   z-index: 1;
 }
@@ -615,19 +601,32 @@ img { max-width: 100%; display: block; }
   gap: 1.4rem;
 }
 .region-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--radius);
+  background: var(--glass-face-dark);
+  border: 1px solid var(--glass-border-dark);
+  border-radius: var(--radius-lg);
   padding: 1.8rem 1.5rem;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transition: transform 0.3s ease, background 0.3s ease;
   height: 100%;
 }
 .region-card:hover {
   transform: translateY(-6px);
-  background: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.1));
 }
-.region-card__icon { font-size: 2.4rem; display: block; margin-bottom: 0.7rem; }
+.region-card__icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  border-radius: 17px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.07));
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  margin-bottom: 0.9rem;
+}
 .region-card h3 { color: var(--white); font-size: 1.25rem; }
 .region-card p { color: rgba(251, 246, 236, 0.82); font-size: 0.97rem; margin: 0; }
 
@@ -648,7 +647,12 @@ img { max-width: 100%; display: block; }
 /* ============================================================
    GALLERY
    ============================================================ */
-.gallery { background: var(--cream); }
+.gallery {
+  background:
+    radial-gradient(50% 42% at 85% 15%, rgba(233, 163, 58, 0.24), transparent 70%),
+    radial-gradient(48% 40% at 10% 85%, rgba(191, 224, 240, 0.34), transparent 70%),
+    var(--cream);
+}
 .gallery__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -656,13 +660,19 @@ img { max-width: 100%; display: block; }
 }
 .gallery__item {
   margin: 0;
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  background: var(--white);
+  background: var(--glass-face);
+  backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-shine);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.gallery__item:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+.gallery__item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 44px rgba(92, 64, 20, 0.16), var(--glass-shine);
+}
 .gallery__item img,
 .gallery__placeholder {
   width: 100%;
@@ -680,37 +690,49 @@ img { max-width: 100%; display: block; }
 /* ============================================================
    PARTNERS
    ============================================================ */
-.partners { background: linear-gradient(180deg, var(--cream), var(--wheat)); }
+.partners {
+  background:
+    radial-gradient(48% 42% at 15% 20%, rgba(169, 207, 134, 0.28), transparent 70%),
+    radial-gradient(50% 44% at 85% 78%, rgba(246, 206, 91, 0.34), transparent 70%),
+    linear-gradient(180deg, var(--cream), var(--wheat));
+}
 .partners__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.4rem;
 }
 .partner-card {
-  background: var(--white);
+  background: var(--glass-face);
+  backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-shine);
   border-radius: var(--radius-lg);
   padding: 1.8rem 1.5rem;
   text-align: center;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid rgba(201, 123, 30, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 100%;
 }
-.partner-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+.partner-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 44px rgba(92, 64, 20, 0.16), var(--glass-shine);
+}
 .partner-card__logo {
   width: 92px;
   height: 92px;
-  border-radius: 20px;
-  background: #fff;
+  border-radius: 22px;
+  /* Logos brauchen eine ruhige, helle Flaeche - hier bewusst fast deckend */
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   display: grid;
   place-items: center;
   font-size: 2.2rem;
   margin-bottom: 1rem;
   padding: 12px;
-  box-shadow: inset 0 0 0 2px rgba(233, 163, 58, 0.22), var(--shadow-sm);
+  box-shadow: 0 8px 20px rgba(92, 64, 20, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.95);
   overflow: hidden;
 }
 /* Firmenlogos vollständig zeigen, ohne Beschnitt */
@@ -732,19 +754,27 @@ img { max-width: 100%; display: block; }
 .partners__note p {
   display: inline-block;
   margin: 0;
-  background: var(--wheat);
+  background: var(--glass-face);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 22px rgba(92, 64, 20, 0.1), var(--glass-shine);
   border-radius: 999px;
   padding: 0.7rem 1.4rem;
   color: var(--bark-soft);
   font-size: 1rem;
-  box-shadow: var(--shadow-sm);
 }
 .partners__note strong { color: var(--bark); }
 
 /* ============================================================
    CONTACT
    ============================================================ */
-.contact { background: var(--cream); }
+.contact {
+  background:
+    radial-gradient(52% 44% at 78% 18%, rgba(233, 163, 58, 0.28), transparent 70%),
+    radial-gradient(50% 42% at 14% 82%, rgba(191, 224, 240, 0.3), transparent 70%),
+    var(--cream);
+}
 .contact__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -757,20 +787,25 @@ img { max-width: 100%; display: block; }
   flex: 0 0 auto;
   width: 46px; height: 46px;
   display: grid; place-items: center;
-  background: var(--wheat);
-  border-radius: 12px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 6px 16px rgba(92, 64, 20, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
   font-size: 1.3rem;
-  box-shadow: var(--shadow-sm);
 }
 .contact__details strong { display: block; }
 .contact__details p { margin: 0.1rem 0 0; color: var(--bark-soft); }
 
 .contact__form-wrap {
-  background: var(--white);
+  background: var(--glass-face);
+  backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-shine);
   border-radius: var(--radius-lg);
   padding: clamp(1.6rem, 4vw, 2.6rem);
-  box-shadow: var(--shadow-md);
-  border: 1px solid rgba(201, 123, 30, 0.1);
 }
 .form-row { margin-bottom: 1.1rem; display: flex; flex-direction: column; }
 .form-row label { font-weight: 700; margin-bottom: 0.4rem; font-size: 0.92rem; }
@@ -911,11 +946,13 @@ img { max-width: 100%; display: block; }
   margin: 1.2rem 0 1.5rem;
 }
 .legal__card {
-  background: var(--white);
-  border-radius: var(--radius);
+  background: var(--glass-face);
+  backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-shine);
+  border-radius: var(--radius-lg);
   padding: 1.3rem 1.5rem;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid rgba(201, 123, 30, 0.12);
   font-style: normal;
   line-height: 1.8;
   color: var(--bark-soft);
@@ -929,10 +966,33 @@ img { max-width: 100%; display: block; }
 .bee-canvas {
   position: fixed;
   inset: 0;
-  z-index: 40;
   pointer-events: none;
 }
+/* Wichtig: react-three-fiber setzt auf seinem eigenen Wrapper
+   "pointer-events: auto" und ueberschreibt damit die Vererbung. Ohne das
+   Nachsetzen hier faengt der vordere Canvas jede Mausinteraktion der
+   Seite ab - Hover, Formular, Links. */
+.bee-canvas *,
+.hero__canvas * {
+  pointer-events: none !important;
+}
 .bee-canvas canvas { display: block; }
+/* vor dem Text */
+.bee-canvas--front { z-index: 40; }
+/* hinter dem Text - dank positivem z-index aber ueber den
+   Sektions-Hintergruenden, die nur "z-index: auto" haben */
+.bee-canvas--back { z-index: 1; }
+
+/* Damit die hintere Ebene wirklich hinter Inhalten liegt, brauchen deren
+   Container eine hoehere Ebene. */
+.section > .container,
+.hero__inner,
+.legal__inner,
+.footer__inner,
+.footer__bottom {
+  position: relative;
+  z-index: 2;
+}
 
 /* ============================================================
    WOW-EFFEKTE: 3D-Wabe, Titel-Animation, Parallaxe, Tilt, Scrollbalken
@@ -997,9 +1057,8 @@ img { max-width: 100%; display: block; }
   animation: glowPulse 3s ease-in-out infinite;
 }
 
-/* Parallaxe der Landschaft (--hero-scroll wird in Hero.jsx gesetzt) */
-.hero__clouds { transform: translateY(calc(var(--hero-scroll, 0) * 0.35px)); }
-.hero__hills { transform: translateY(calc(var(--hero-scroll, 0) * 0.15px)); }
+/* Die Parallaxe des Fotos steht oben bei .hero__photo
+   (--hero-scroll wird in Hero.jsx gesetzt) */
 
 /* Titel: Wort für Wort nach oben einblenden */
 .hero__word {
@@ -1115,6 +1174,19 @@ img { max-width: 100%; display: block; }
 
 /* --- Hero auf schmalen Bildschirmen: Wabe oben, Text zentriert --- */
 @media (max-width: 900px) {
+  /* Hier steht der Text mittig statt links, der seitliche Schleier würde
+     ihn also nicht schützen. Deshalb von oben nach unten aufbauen: oben
+     bleibt das Foto sichtbar, unter der Wabe deckt es zunehmend ab. */
+  .hero__scrim {
+    background: linear-gradient(
+      180deg,
+      rgba(253, 246, 232, 0.5) 0%,
+      rgba(253, 246, 232, 0.42) 16%,
+      rgba(253, 246, 232, 0.8) 36%,
+      rgba(253, 246, 232, 0.92) 58%,
+      var(--cream) 100%
+    );
+  }
   .hero__inner { grid-template-columns: 1fr; gap: 0.5rem; }
   .hero__3d { order: -1; max-width: 300px; }
   .hero__content { text-align: center; margin-inline: auto; }
@@ -1183,6 +1255,5 @@ img { max-width: 100%; display: block; }
   /* Titel & Hero-Elemente sofort sichtbar, keine Verzögerung */
   .hero__word-inner,
   .hero__fade { animation-delay: 0s !important; }
-  .hero__clouds,
-  .hero__hills { transform: none; }
+  .hero__photo { transform: scale(1.06); } /* keine Parallaxe */
 }

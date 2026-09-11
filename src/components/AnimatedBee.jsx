@@ -5,7 +5,8 @@
 // Luft hat; pausiert wird, sobald der Tab in den Hintergrund geht.
 // Bei "prefers-reduced-motion: reduce" bleibt der Schwarm ganz aus.
 
-import { Component, Suspense, lazy, useEffect, useState } from 'react'
+import { Component, Suspense, lazy, useEffect, useMemo, useState } from 'react'
+import { makeFlightRoute } from './three/routes.js'
 
 const BeeScene = lazy(() => import('./three/BeeScene.jsx'))
 
@@ -53,15 +54,34 @@ export default function AnimatedBee() {
     return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
 
+  // Routen hier erzeugen, nicht in den Szenen: Beide Ebenen müssen exakt
+  // dieselben verwenden, sonst passt die Biene beim Wechsel nicht zusammen.
+  const specs = useMemo(() => {
+    const sizes = compact ? [46, 32, 24] : [54, 42, 32, 48, 26]
+    return sizes.map((px) => ({
+      px,
+      route: makeFlightRoute(),
+      flap: 13 + Math.random() * 5, // Flügelschläge je Sekunde
+      phase: Math.random() * Math.PI * 2,
+      // entscheidet, welche Flugrichtung vor dem Text liegt – je Biene anders
+      flip: Math.random() < 0.5,
+    }))
+  }, [compact])
+
   if (reducedMotion || !ready) return null
 
   return (
-    <div className="bee-canvas" aria-hidden="true">
-      <SceneBoundary>
-        <Suspense fallback={null}>
-          <BeeScene active={visible} reducedMotion={reducedMotion} compact={compact} />
-        </Suspense>
-      </SceneBoundary>
-    </div>
+    <SceneBoundary>
+      <Suspense fallback={null}>
+        {/* hinter dem Text, aber über den Sektions-Hintergründen */}
+        <div className="bee-canvas bee-canvas--back" aria-hidden="true">
+          <BeeScene specs={specs} layer="back" active={visible} compact={compact} />
+        </div>
+        {/* vor dem Text */}
+        <div className="bee-canvas bee-canvas--front" aria-hidden="true">
+          <BeeScene specs={specs} layer="front" active={visible} compact={compact} />
+        </div>
+      </Suspense>
+    </SceneBoundary>
   )
 }

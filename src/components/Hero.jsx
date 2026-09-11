@@ -30,30 +30,12 @@ export default function Hero() {
 
   return (
     <section id="start" className="hero" ref={ref}>
-      {/* Sanfte Landschaft: Himmel, Sonne, Deich, Wiese */}
+      {/* Echte ostfriesische Blumenwiese als Hintergrund. Der Schleier
+          darüber hält den Text lesbar und blendet nach unten ins Cremeweiß
+          der Seite über. */}
       <div className="hero__scenery" aria-hidden="true">
-        <div className="hero__sun" />
-        <div className="hero__clouds">
-          <span className="cloud cloud--1" />
-          <span className="cloud cloud--2" />
-          <span className="cloud cloud--3" />
-        </div>
-        <svg className="hero__hills" viewBox="0 0 1440 320" preserveAspectRatio="none">
-          <path
-            fill="#cfe3b6"
-            d="M0,224 C240,160 480,288 720,256 C960,224 1200,160 1440,224 L1440,320 L0,320 Z"
-          />
-          <path
-            fill="#a9cf86"
-            d="M0,288 C240,240 480,320 720,288 C960,256 1200,304 1440,272 L1440,320 L0,320 Z"
-          />
-        </svg>
-        {/* schwankende Gräser */}
-        <div className="hero__grass">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <span key={i} className="blade" style={{ '--i': i }} />
-          ))}
-        </div>
+        <div className="hero__photo" />
+        <div className="hero__scrim" />
       </div>
 
       <div className="hero__inner">
